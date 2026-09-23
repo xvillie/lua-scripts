@@ -90,7 +90,14 @@ local sa = {
     ["hooked"] = false
 }
 
-local TARGET_PARTS = {"Head", "UpperTorso", "LowerTorso", "LeftHand", "RightHand"}
+local TARGET_PARTS = {
+    "Head",
+    "UpperTorso", "LowerTorso",
+    "LeftUpperArm", "LeftLowerArm", "LeftHand",
+    "RightUpperArm", "RightLowerArm", "RightHand",
+    "LeftUpperLeg", "LeftLowerLeg", "LeftFoot",
+    "RightUpperLeg", "RightLowerLeg", "RightFoot"
+}
 
 script_obj.functions.getclosestpart = function(character, screenpos)
     local closestpart = nil
