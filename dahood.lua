@@ -1,19 +1,3 @@
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
-
-local workspace = game:GetService("Workspace")
-local plrs = game:GetService("Players")
-local rs = game:GetService("RunService")
-local uis = game:GetService("UserInputService")
-
-local lp = plrs.LocalPlayer
-local mouse = lp:GetMouse()
-local camera = workspace.CurrentCamera
-
-local handler = require(game:GetService("ReplicatedStorage").Modules.GunHandler)
-local oldfunction = handler.getAim
-
 local config = {
     ["silent"] = {
         ["enabled"] = false,
@@ -41,12 +25,28 @@ local config = {
     }
 }
 
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+local workspace = game:GetService("Workspace")
+local plrs = game:GetService("Players")
+local rs = game:GetService("RunService")
+local uis = game:GetService("UserInputService")
+
+local lp = plrs.LocalPlayer
+local mouse = lp:GetMouse()
+local camera = workspace.CurrentCamera
+
+local handler = require(game:GetService("ReplicatedStorage").Modules.GunHandler)
+local oldfunction = handler.getAim
+
 if getgenv().loaded then
 local StarterGui = game:GetService("StarterGui")
 StarterGui:SetCore("SendNotification", {
-    Title = "config", -- The main header of the notification (Required)
-    Text = "config updated", -- The description text (Required)
-    Duration = 2 -- How long it stays on screen in seconds (Optional)
+    Title = "config",
+    Text = "config updated",
+    Duration = 2
 })
 return
 end
