@@ -17,8 +17,14 @@ local oldfunction = handler.getAim
 local config = {
     ["silent"] = {
         ["enabled"] = false,
-        ["part"] = "Head",
-        ["fov"] = 100
+        ["part"] = "HumanoidRootPart",
+        ["fov"] = 300,
+        ["prediction"] = {
+            ["enabled"] = false,
+            ["x"] = 0.13,
+            ["y"] = 0.13,
+            ["z"] = 0.13
+        }
     },
     ["checks"] = {
         ["Knocked"] = false,
@@ -29,11 +35,21 @@ local config = {
     ["speed"] = {
         ["enabled"] = false,
         ["state"] = false, -- dont touch
-        ["value"] = 16,
-        ["mode"] = "Hold",
-        ["keybind"] = "C"
+        ["value"] = 160,
+        ["mode"] = "Toggle",
+        ["keybind"] = "X"
     }
 }
+
+if getgenv().loaded then
+local StarterGui = game:GetService("StarterGui")
+StarterGui:SetCore("SendNotification", {
+    Title = "config", -- The main header of the notification (Required)
+    Text = "config updated", -- The description text (Required)
+    Duration = 2 -- How long it stays on screen in seconds (Optional)
+})
+return
+end
 
 local script_obj = {
     ["functions"] = {},
@@ -176,18 +192,45 @@ end
 
 handler.getAim = function(origin, maxDist)
     if sa.target.part and sa.target.player then
-        local direction = (sa.target.part.Position - origin).Unit
-        local distance = (sa.target.part.Position - origin).Magnitude
+        local part = sa.target.part
+        local pos = part.Position
+
+        if config.silent.prediction.enabled then
+            local velocity = part.AssemblyLinearVelocity
+            local prediction = config.silent.prediction
+
+            pos = pos + Vector3.new(
+                velocity.X * prediction.x,
+                velocity.Y * prediction.y,
+                velocity.Z * prediction.z
+            )
+        end
+
+        local offset = pos - origin
+        local direction = offset.Unit
+        local distance = offset.Magnitude
+
         return direction, math.min(distance, maxDist or 200)
     end
-    return oldfunction(origin, maxDist) 
+
+    return oldfunction(origin, maxDist)
 end
 
 local idx
 idx = hookmetamethod(game, "__index", function(self, key)
     if not checkcaller() and self == mouse and config.silent.enabled and sa.target.part then
         if key == "Hit" then
-            return sa.target.part.CFrame
+            local part = sa.target.part
+            local velocity = part.AssemblyLinearVelocity
+            local prediction = config.silent.prediction
+
+            local predicted_pos = part.Position + Vector3.new(
+                velocity.X * prediction.x,
+                velocity.Y * prediction.y,
+                velocity.Z * prediction.z
+            )
+
+            return CFrame.new(predicted_pos)
         elseif key == "Target" then
             return sa.target.part
         end
@@ -228,3 +271,5 @@ local function cache()
 end
 
 script_obj.connections.Render = rs.RenderStepped:Connect(cache)
+
+getgenv().loaded = true
